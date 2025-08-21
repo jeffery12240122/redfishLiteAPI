@@ -11,6 +11,10 @@ A lightweight command-line tool to interact with Redfish APIs using `GET`, `POST
     
 -   🔐 Basic Authentication (`-U` / `-P`)
     
+-   🪪 Redfish Session Token support (`--session_token`)
+    
+-   🔑 Auto-login to get Redfish session token (`--login_session`)
+    
 -   📁 JSON body input via file (`--json_file`)
     
 -   🔍 Recursive field value search with `--find` (supports multiple fields)
@@ -18,6 +22,7 @@ A lightweight command-line tool to interact with Redfish APIs using `GET`, `POST
 -   💾 Save response to file (`--save`)
     
 -   🧾 Custom HTTP headers (`--header`)
+-   🌐 Recursively fetch all linked resources (`--all`) and save to folder (`--file_name`)
     
 -   ⏱️ 10-second request timeout to prevent hanging
     
@@ -34,33 +39,19 @@ A lightweight command-line tool to interact with Redfish APIs using `GET`, `POST
 
 ## 🚀 Usage
 
-
 `python redfishLiteApi.py --url <API_URL> --method <get|post|patch> [OPTIONS]` 
 
-### ✅ Example: Basic GET request
+### 🌐 Example: Recursively fetch all resources
 
+`python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get --all --file_name dump_folder`
 
-`python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get` 
+### 🪪 Example: Use Redfish session token
 
-### 🔐 Example: Authenticated GET with header and find field
+`python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get --session_token <TOKEN>`
 
-`python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get \
-    -U admin -P password \
-    --header "If-Match:W/\"etag-value\"" \
-    --find Id Name PowerState` 
+### 🔑 Example: Auto-login to get session token
 
-### 📝 Example: PATCH with body file
-
-`python redfishLiteApi.py --url https://<host>/redfish/v1/Managers/1/EthernetInterfaces/1 \
-    --method patch -U admin -P password --json_file update.json` 
-
-### 💾 Example: Save output to file
-
-`python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get --save output.json` 
-
-### 📌 Check version
-
-`python redfishLiteApi.py --version` 
+`python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get --login_session -U admin -P password`
 
 ----------
 
@@ -101,6 +92,22 @@ Save the response body to a file
 `--header`
 
 Custom headers in `Key:Value` format (can be repeated)
+
+`--session_token`
+
+Use existing Redfish session token for authentication
+
+`--login_session`
+
+Automatically login and get Redfish session token
+
+`--all`
+
+Recursively follow `@odata.id` and save all data into folders
+
+`--file_name`
+
+Folder name to save files when using `--all` 
 
 `--version`
 

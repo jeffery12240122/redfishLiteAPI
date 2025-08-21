@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="redfishLiteApi",
-    version="1.0.1",
+    version="1.1.0",
     author="Jeffery Lin",
     author_email="jeffery12240122@gmail.com",
     description="A lightweight Redfish API command-line tool",
