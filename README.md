@@ -58,6 +58,7 @@ A lightweight command-line tool to interact with Redfish APIs using `GET`, `POST
 ### 🧭 Example: Deep search for field path
 
 `python redfishLiteApi.py --url https://<host>/redfish/v1/ --method get -U admin -P password --find_path key`
+
 ----------
 
 ## 🧠 Argument Summary
