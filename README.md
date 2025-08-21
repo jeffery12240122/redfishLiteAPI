@@ -33,6 +33,8 @@ A lightweight command-line tool to interact with Redfish APIs using `GET`, `POST
 -   ⚠️ JSON parse error handling with fallback to raw text
     
 -   🔢 `--version` support
+
+-   🧭 Deep field path search across all linked resources (`--find_path`)
     
 
 ----------
@@ -53,6 +55,9 @@ A lightweight command-line tool to interact with Redfish APIs using `GET`, `POST
 
 `python redfishLiteApi.py --url https://<host>/redfish/v1/Systems --method get --login_session -U admin -P password`
 
+### 🧭 Example: Deep search for field path
+
+`python redfishLiteApi.py --url https://<host>/redfish/v1/ --method get -U admin -P password --find_path key`
 ----------
 
 ## 🧠 Argument Summary
@@ -84,6 +89,10 @@ Path to JSON file for POST or PATCH body
 `--find`
 
 One or more JSON field names to recursively extract (GET only)
+
+`--find_path`  
+
+Find and print the value and API path of specific field(s) recursively across all linked resources (GET only)
 
 `--save`
 
@@ -146,3 +155,12 @@ Install dependencies via:
 ## 📜 License
 
 MIT License
+
+## 📬 Contact
+
+For questions, feature requests, or business inquiries, please contact:
+
+**Jeffery Lin**  
+📧 jeffery12240122@gmail.com
+
+Or open an issue on [GitHub](https://github.com/jeffery12240122/redfishLiteAPI).

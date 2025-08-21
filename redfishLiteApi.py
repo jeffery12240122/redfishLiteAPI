@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 from urllib.parse import urljoin
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Redfish Lite API Tool')
@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('--file_name', default='redfish_dump', help='Folder name to save files when using --all')
     parser.add_argument('--session_token', help='Use existing Redfish session token')
     parser.add_argument('--login_session', action='store_true', help='Automatically login to get Redfish session token')
-
+    parser.add_argument('--find_path',nargs = '+', help='Show path of each matched field')
     args = parser.parse_args()
 
     if not args.version:
@@ -116,6 +116,59 @@ def recursive_fetch(url, auth, headers, base_path, visited, depth=0, max_depth=1
     except Exception as e:
         print(f"❌ Error fetching {url}: {e}")
 
+def extract_fields_with_paths(obj, field_names, show_path=False):
+    results = []
+
+    def recursive_search(o, path=""):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                new_path = f"{path}/{k}" if path else k
+                if k in field_names:
+                    if show_path:
+                        results.append(f"{k}: {v} (Path: /{new_path})")
+                    else:
+                        results.append(f"{k}: {v}")
+                
+                recursive_search(v, new_path)
+        elif isinstance(o, list):
+            for idx, item in enumerate(o):
+                new_path = f"{path}/{idx}" if path else str(idx)
+                recursive_search(item, new_path)
+
+    recursive_search(obj)
+    return results
+
+def deep_find_path(url, auth, headers, field_names, visited=None, counter=None):
+    if visited is None:
+        visited = set()
+    if counter is None:
+        counter = [1]
+    if url in visited:
+        return
+    visited.add(url)
+    try:
+        resp = requests.get(url, auth=auth, headers=headers, verify=False, timeout=10)
+        data = resp.json()
+    except Exception:
+        return
+
+    matches = extract_fields_with_paths(data, field_names, show_path=False)
+    api_path = urlparse(url).path
+    for match in matches:
+        print(f"[{counter[0]}] {match} (API Path: {api_path})")
+        counter[0] += 1
+    
+    links = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if isinstance(v, dict) and '@odata.id' in v:
+                links.append(urljoin(url, v['@odata.id']))
+            elif isinstance(v, list):
+                for item in v:
+                    if isinstance(item, dict) and '@odata.id' in item:
+                        links.append(urljoin(url, item['@odata.id']))
+    for link in links:
+        deep_find_path(link, auth, headers, field_names, visited, counter)
 
 def main():
     args = parse_args()
@@ -201,8 +254,11 @@ def main():
         # Handle response output
         try:
             data = resp.json()
-            if args.method == 'get' and args.find:
-                matches = extract_fields(data, args.find)
+            if args.method == 'get' and args.find_path:     
+                deep_find_path(args.url, auth, headers, args.find_path)
+                return
+            elif args.method == 'get' and args.find:
+                matches = extract_fields_with_paths(data, args.find, show_path=False)
                 if matches:
                     for i, match in enumerate(matches, 1):
                         print(f"[{i}] {match}")
